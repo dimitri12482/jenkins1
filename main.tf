@@ -32,7 +32,7 @@ resource "aws_security_group" "web_traffic" {
 # key pair create
 module "key_pair" {
   source     = "terraform-aws-modules/key-pair/aws"
-  key_name   = "cloud"
+  key_name   = "jenkins"
   public_key = file(var.public_key)
 }
 
@@ -41,7 +41,7 @@ resource "aws_instance" "jenkins" {
   ami             = data.aws_ami.redhat.id
   instance_type   = "t2.micro"
   security_groups = [aws_security_group.web_traffic.name]
-  key_name        = "cloud"
+  key_name        = "jenkins"
   tags = {
     Name = "Jenkins-server"
   }
@@ -70,9 +70,6 @@ resource "null_resource" "os_update" {
 
   provisioner "remote-exec" {
     inline = [
-      "sudo wget http://repos.fedorapeople.org/repos/dchen/apache-maven/epel-apache-maven.repo -O /etc/yum.repos.d/epel-apache-maven.repo",
-      "sudo sed -i s/\$releasever/6/g /etc/yum.repos.d/epel-apache-maven.repo",
-      "sudo yum install -y apache-maven",
       "sudo yum install -y java-11-openjdk-devel",
       "sudo yum -y install wget",
       "sudo wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo",
